@@ -1,11 +1,14 @@
+import React, { useState } from "react";
 import { async } from "@firebase/util";
-import { authService } from "fbase";
+import { authService, firebaseInstance } from "fbase";
 import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
-import React, { useState } from "react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -41,6 +44,17 @@ const Auth = () => {
     }
   };
   const toggleAccount = () => setNewAccount((prev) => !prev);
+  const onSocialClick = async (event) => {
+    const name = event.target.name;
+    let provider;
+    if (name === "google") {
+      provider = new GoogleAuthProvider();
+    } else if (name === "github") {
+      provider = new GithubAuthProvider();
+    }
+    const data = await signInWithPopup(authService, provider);
+    console.log(data);
+  };
 
   return (
     <div>
@@ -66,8 +80,12 @@ const Auth = () => {
       </form>
       <span onClick={toggleAccount}>{newAccount ? "로그인" : "회원가입"}</span>
       <p>{error}</p>
-      <button>Continue with Google</button>
-      <button>Continue with Github</button>
+      <button onClick={onSocialClick} name="google">
+        Continue with Google
+      </button>
+      <button onClick={onSocialClick} name="github">
+        Continue with Github
+      </button>
     </div>
   );
 };
