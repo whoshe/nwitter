@@ -1,16 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { dbService } from "fbase";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { getDocs, addDoc, collection } from "firebase/firestore";
 
 const Home = () => {
   const [nweet, setNweet] = useState(""); //String
+  const [nweets, setNweets] = useState([]);
+
+  const getNweets = async () => {
+    const dbNweets = await getDocs(collection(dbService, "nweets"));
+    dbNweets.forEach((document) => {
+      const nweetObject = {
+        ...document.data(),
+        id: document.id,
+      };
+      setNweets((prev) => [nweetObject, ...prev]);
+    });
+  };
+  useEffect(() => {
+    getNweets();
+  }, []);
   const onSubmit = async (event) => {
     event.preventDefault();
     await addDoc(collection(dbService, "nweets"), {
       nweet,
-      createdAt: serverTimestamp(),
+      createdAt: Date.now(),
     });
-
     setNweet("");
   };
   const onChange = (event) => {
@@ -20,6 +34,8 @@ const Home = () => {
     setNweet(value);
     // console.log(nweet);
   };
+  console.log(nweets);
+
   return (
     <div>
       <form onSubmit={onSubmit}>
@@ -32,6 +48,15 @@ const Home = () => {
         ></input>
         <input type="submit" value="Nweet"></input>
       </form>
+      <div>
+        <ul>
+          {nweets.map((nweet) => (
+            <li key={nweet.id}>
+              <h4>{nweet.nweet}</h4>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
