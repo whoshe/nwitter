@@ -22,7 +22,7 @@ const Home = () => {
   const onSubmit = async (event) => {
     event.preventDefault();
     await addDoc(collection(dbService, "nweets"), {
-      nweet,
+      text: nweet,
       createdAt: Date.now(),
     });
     setNweet("");
